@@ -1,16 +1,28 @@
-@media screen and (max-width: 992px) {
-	.img {
-		display: none;
-	}
-}
-
-body {
-	margin: 0;
-	background: url("omfgdogs.gif");
-}
-
 a {
+	color: black;
+	font-family: "Ubuntu";
+	font-size: 20px;
 	position: absolute;
 	right: 0;
 	bottom: 0;
+}
+
+p {
+	font-family: "Ubuntu";
+	font-size: 50px;
+}
+
+@media only screen and (min-width: 992px) {
+	body {
+		margin: 0;
+		background: url("omfgdogs.gif");
+	}
+
+	p {
+		font-size: 0;
+	}
+
+	a {
+		color: white;
+	}
 }
