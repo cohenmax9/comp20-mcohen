@@ -7,11 +7,24 @@
 <title>Fecesbook</title>
 <script type="text/javascript">
 function handleOnChange(event) {
-		date = new Date();
+	date = new Date();
+	printedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + " - ";
+	input = document.getElementById("msg");
+
+	var newNode = document.createTextNode(printedDate + " - " + input.value);
+	var br = document.createElement('br');
+
+	document.getElementById('status').appendChild(newNode);
+	parent = newNode.parentNode;
+	parent.insertBefore(newNode, parent.firstChild);
+	document.getElementById('status').appendChild(br);
+	input.value = "";
+
+		/*date = new Date();
 		printedDate = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + " - ";
 		input = document.getElementById("msg");
 		status = document.getElementById("status").innerHTML = printedDate + input.value + "<br />" + document.getElementById("status").innerHTML;
-		input.value = "";
+		input.value = "";*/
 }
 </script>
 </head>
