@@ -1,0 +1,16 @@
+#list {
+	font-family: "Ubuntu";
+}
+
+table {
+	background-color: white;
+}
+
+thead {
+	font-weight: bold;
+}
+
+td {
+	padding: 5px;
+	padding-right: 10px;
+}
