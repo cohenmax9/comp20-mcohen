@@ -1,5 +1,6 @@
 #list {
 	font-family: "Ubuntu";
+	padding: 25px;
 }
 
 table {
@@ -7,10 +8,21 @@ table {
 }
 
 thead {
+	font-size: 26px;
 	font-weight: bold;
+	text-align: center;
 }
 
 td {
 	padding: 5px;
 	padding-right: 10px;
+}
+
+table, td {
+	border: 2px solid black;
+}
+
+tr:hover {
+	background-color: black;
+	color: white;
 }
