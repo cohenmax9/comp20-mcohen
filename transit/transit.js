@@ -1,8 +1,12 @@
 var map;
 var infowindow;
+var userLat = 0;
+var userLong = 0;
 
 function userPosition(position) {
-   	var userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+	userLat = position.coords.latitude;
+	userLong = position.coords.longitude
+   	var userLatLng = new google.maps.LatLng(userLat, userLong);
    	var markerOptions = {
    		position: userLatLng,
    		map: map,
@@ -34,8 +38,8 @@ function initialize() {
     	content: "Hey"
     };
 
-    infowindow = new google.maps.InfoWindow(infoOptions);
     navigator.geolocation.getCurrentPosition(userPosition, geoLocationError);
+    infowindow = new google.maps.InfoWindow(infoOptions);
 
     getTrainData();   	
 }
@@ -71,9 +75,12 @@ function createMarkers() {
 		   	}
 
 		   	var marker = new google.maps.Marker(markerOptions);
-		   	
+		   	var dist = distanceToStation(lat, lng);
+
 		   	google.maps.event.addListener(marker, 'click', function() {
-		    	infowindow.setContent(dest + ": " + secsToMins(arrivalTime, 0) + " until train arrives.");
+		    	infowindow.setContent(dest + ": " + secsToMins(arrivalTime, 0) + 
+		    		" until train arrives." + "The train station is " +
+		    		dist + " miles away from you.");
 		    	infowindow.open(map, this);
 		    });
 
@@ -104,6 +111,34 @@ function secsToMins(secs, mins) {
 		return secsToMins(secs, mins);
 	}
 }
+
+function toRadians(x) {
+   return x * Math.PI / 180;
+}
+
+//messed up because the userPosition function doesn't set userLat and userLong
+//until after distanceToStation is callled, so get numbers relative to (0,0)
+/*function distanceToStation (stationLat, stationLong) {
+	var earthRadius = 3959; // km 
+	var latPos = userLat - stationLat;
+	var latDist = toRadians(latPos);  
+	var longPos = userLong - stationLong;
+	var longDist = toRadians(longPos);
+	console.log(latPos);
+	console.log(latDist);
+	console.log(longPos);
+	console.log(longDist);
+
+	var a = Math.sin(latDist / 2) * Math.sin(latDist / 2) + 
+	                Math.cos(toRadians(stationLat)) * Math.cos(toRadians(userLat)) * 
+	                Math.sin(longDist / 2) * Math.sin(longDist / 2);  
+	alert(a);
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+	var d = earthRadius * c; 
+
+	//alert(d);
+	return d;
+}*/
 
 
 /*
