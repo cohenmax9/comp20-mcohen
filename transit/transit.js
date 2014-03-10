@@ -125,27 +125,28 @@ function createMarkers() {
 
 		for (i = 0; i < scheduleData.schedule.length; i++) {	
 			var dest = scheduleData.schedule[i].Destination;
-			var latlong = mbta[line][dest]
-			console.log(latlong);
-			var lat = latlong[0];
-			var lng = latlong[1];
-			for (j = 0; j < scheduleData.schedule.Predictions.length; j++) {
-			var arrivalTime = scheduleData.schedule[i].Predictions[j].Seconds;
-
+			for (j = 0; j < 1;/*scheduleData.schedule.Predictions[j].length;*/ j++) {
+				var station = scheduleData.schedule[i].Predictions[j].Stop;
+				console.log(station);
+				var lat = mbta[line][station][0];
+				var lng = mbta[line][station][1];
+				var arrivalTime = scheduleData.schedule[i].Predictions[j].Seconds;
+			}
 			var stopCoords = new google.maps.LatLng(lat, lng);
 		   	var markerOptions = {
 		   		position: stopCoords,
 		   		map: map,
-		       	title: dest
-		   	}
+		       	title: station
+		   	};
 
 		   	var marker = new google.maps.Marker(markerOptions);
 		   	//var dist = distanceToStation(lat, lng);
 
 		   	google.maps.event.addListener(marker, 'click', function() {
-		    	infowindow.setContent(dest + ": " + secsToMins(arrivalTime, 0) + 
+		   		infowindow.setContent(displaySchedule(scheduleData.schedule[0].Predictions));
+		    	/*infowindow.setContent(dest + ": " + secsToMins(arrivalTime, 0) + 
 		    		" until train arrives." + "The train station is " +
-		    		/*dist +*/ " miles away from you.");
+		    		dist + " miles away from you.");*/
 		    	infowindow.open(map, this);
 		    });
 
@@ -153,7 +154,6 @@ function createMarkers() {
 		   	google.maps.event.addListener(marker, 'click', function() {
 		    	infowindow.open(map, marker);
 		  	});
-		}
 		}
    }
    else if (xhr.readyState == 4 && xhr.status == 500) {
@@ -180,6 +180,16 @@ function secsToMins(secs, mins) {
 
 function toRadians(x) {
    return x * Math.PI / 180;
+}
+
+function displaySchedule(predictions) {
+var content = 	"<table class=\"table.colorful\"><tr><th>Station</th><th>Time</th><th>Stuff</th><th>Whatever</th></tr>"; 
+for (i = 0; i < predictions.length; i++) {
+	tableData += "<tr><td>" + predictions.seconds + "</td><td>" + predictions.StopID + "</td></tr>";
+}
+	content += tableData;
+	content += "</table>";
+	return content;
 }
 
 //messed up because the userPosition function doesn't set userLat and userLong
