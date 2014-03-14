@@ -65,13 +65,14 @@ var userLong = 0;
 
 function userPosition(position) {
 	userLat = position.coords.latitude;
-	userLong = position.coords.longitude
+	userLong = position.coords.longitude;
    	var userLatLng = new google.maps.LatLng(userLat, userLong);
    	var markerOptions = {
    		position: userLatLng,
    		map: map,
        	title: 'Your Location'
-   	}
+   	};
+
    	var marker = new google.maps.Marker(markerOptions);
 
    	marker.setMap(map);
@@ -91,7 +92,8 @@ function initialize() {
         zoom: 10,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         center: us
-    }
+    };
+
     map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
     var infoOptions = {
@@ -121,45 +123,72 @@ function createMarkers() {
 		console.log(mbta);
 
 		var line = scheduleData.line;
-		console.log(scheduleData.schedule.length);
+		var markerIcon;
+
+		if (line == "red") {
+			markerIcon = new google.maps.MarkerImage("red.png");
+		}
+		else if (line == "blue") {
+			markerIcon = new google.maps.MarkerImage("blue.png");
+		}
+		else {
+			markerIcon = new google.maps.MarkerImage("orange.png");
+		}
 
 		for (i = 0; i < scheduleData.schedule.length; i++) {	
 			var dest = scheduleData.schedule[i].Destination;
-			for (j = 0; j < 1;/*scheduleData.schedule.Predictions[j].length;*/ j++) {
-				var station = scheduleData.schedule[i].Predictions[j].Stop;
-				console.log(station);
+			//for (j = 0; j < 1;/*scheduleData.schedule.Predictions[j].length;*/ j++) {
+				var station = scheduleData.schedule[i].Predictions[0].Stop;
 				var lat = mbta[line][station][0];
 				var lng = mbta[line][station][1];
-				var arrivalTime = scheduleData.schedule[i].Predictions[j].Seconds;
-			}
+				var arrivalTime = scheduleData.schedule[i].Predictions[0].Seconds;
+			//}
 			var stopCoords = new google.maps.LatLng(lat, lng);
 		   	var markerOptions = {
 		   		position: stopCoords,
 		   		map: map,
-		       	title: station
+		       	title: station,
+		       	icon: markerIcon
 		   	};
 
 		   	var marker = new google.maps.Marker(markerOptions);
-		   	//var dist = distanceToStation(lat, lng);
 
 		   	google.maps.event.addListener(marker, 'click', function() {
-		   		infowindow.setContent(displaySchedule(scheduleData.schedule[0].Predictions));
-		    	/*infowindow.setContent(dest + ": " + secsToMins(arrivalTime, 0) + 
-		    		" until train arrives." + "The train station is " +
-		    		dist + " miles away from you.");*/
+		   		infowindow.setContent(displaySchedule(station, scheduleData.schedule[0].Predictions));
 		    	infowindow.open(map, this);
 		    });
 
 		   	marker.setMap(map);
-		   	google.maps.event.addListener(marker, 'click', function() {
-		    	infowindow.open(map, marker);
-		  	});
 		}
-   }
-   else if (xhr.readyState == 4 && xhr.status == 500) {
+	   	drawLines(line);
+    }
+    else if (xhr.readyState == 4 && xhr.status == 500) {
 		scheduleDom = document.getElementById("map_canvas");
 		scheduleDom.innerHTML = "<h1>Failure to load trains. Server Error</h1>";
-	}
+	}	    
+}
+
+function drawLines(line) {
+
+	/*var tlines = [
+		new google.maps.LatLng(mbta[line][station][0], mbta[line][station][1]),
+		new google.maps.LatLng(42.330154, -71.057655),
+		new google.maps.LatLng(42.284652, -71.064489),
+		new google.maps.LatLng(42.2078543, -71.0011385),
+		new google.maps.LatLng(42.2078543, -71.0011385)
+	];*/
+
+	console.log(tlines);
+
+	var linePath = new google.maps.Polyline({
+		path: tlines,
+		geodesic: true,
+		strokeColor: '#FF0000',
+		strokeOpacity: 1.0,
+		strokeWeight: 2
+	});
+
+	linePath.setMap(map);
 }
 
 function secsToMins(secs, mins) {
@@ -182,33 +211,30 @@ function toRadians(x) {
    return x * Math.PI / 180;
 }
 
-function displaySchedule(predictions) {
-var content = 	"<table class=\"table.colorful\"><tr><th>Station</th><th>Time</th><th>Stuff</th><th>Whatever</th></tr>"; 
-for (i = 0; i < predictions.length; i++) {
-	tableData += "<tr><td>" + predictions.seconds + "</td><td>" + predictions.StopID + "</td></tr>";
-}
+function displaySchedule(station, predictions) {
+	var tableData;
+	var content = "<h4>" + station + "</h4>";
+	content += "<table><tr><th>Station</th><th>Time</th></tr>"; 
+	for (i = 0; i < predictions.length; i++) {
+		tableData += "<tr><td>" + predictions[i].Stop + "</td><td>" + secsToMins(predictions[i].Seconds, 0) + "</td></tr>";
+	}
 	content += tableData;
 	content += "</table>";
 	return content;
 }
 
 //messed up because the userPosition function doesn't set userLat and userLong
-//until after distanceToStation is callled, so get numbers relative to (0,0)
+//until after distanceToStation is called, so get numbers relative to (0,0)
 /*function distanceToStation (stationLat, stationLong) {
 	var earthRadius = 3959; // km 
 	var latPos = userLat - stationLat;
 	var latDist = toRadians(latPos);  
 	var longPos = userLong - stationLong;
 	var longDist = toRadians(longPos);
-	console.log(latPos);
-	console.log(latDist);
-	console.log(longPos);
-	console.log(longDist);
 
 	var a = Math.sin(latDist / 2) * Math.sin(latDist / 2) + 
 	                Math.cos(toRadians(stationLat)) * Math.cos(toRadians(userLat)) * 
 	                Math.sin(longDist / 2) * Math.sin(longDist / 2);  
-	alert(a);
 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
 	var d = earthRadius * c; 
 
