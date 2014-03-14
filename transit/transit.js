@@ -77,6 +77,7 @@ function userPosition(position) {
    	var marker = new google.maps.Marker(markerOptions);
 
    	marker.setMap(map);
+   	map.panTo(userLatLng);
    	google.maps.event.addListener(marker, 'click', function() {
    		infowindow.setContent("You are here");
     	infowindow.open(map,marker);
@@ -108,7 +109,7 @@ var xhr;
 var scheduleData;
 
 function getTrainData() {
-		xhr = new XMLHttpRequest();
+	xhr = new XMLHttpRequest();
 	xhr.open("get","http://mbtamap.herokuapp.com/mapper/rodeo.json", true);
 	xhr.onreadystatechange = insertDataIntoInfoWindow;
 	xhr.send(null);
@@ -117,9 +118,6 @@ function getTrainData() {
 function insertDataIntoInfoWindow() {
 	if (xhr.readyState == 4 && xhr.status == 200) {
 		scheduleData = JSON.parse(xhr.responseText);
-		console.log(scheduleData);
-		console.log(mbta);
-
 		var line = scheduleData.line;
 
 		createMarkers(line);
@@ -279,6 +277,21 @@ function toRadians(x) {
    return x * Math.PI / 180;
 }
 
+function findClosestStation(line) {
+	var stations = Object.keys(mbta[line]);
+	var closestDist = 9999;
+	var closestStation = "";
+
+	for (var i = 0; i < stations.length; i++) {
+		var curDist = distanceToStation(mbta[line][station][0], mbta[line][station][1]);
+		if (curDist < closestDist) {
+			closestDist = curDist;
+			closestStation = stations[i];
+		}
+	}
+
+
+}
 
 //messed up because the userPosition function doesn't set userLat and userLong
 //until after distanceToStation is called, so get numbers relative to (0,0)
