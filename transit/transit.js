@@ -61,26 +61,37 @@ var mbta = {'blue': blue, 'red': red, 'orange': orange};
 
 var map;
 var infowindow;
+var xhr;
+var scheduleData;
+var line;
 var userLat = 0;
 var userLong = 0;
 
 function userPosition(position) {
 	userLat = position.coords.latitude;
 	userLong = position.coords.longitude;
+	var content = findClosestStation();
+
    	var userLatLng = new google.maps.LatLng(userLat, userLong);
+   	var markerIcon = new google.maps.MarkerImage("direction_down.png");
    	var markerOptions = {
    		position: userLatLng,
    		map: map,
-       	title: 'Your Location'
+       	title: 'Your Location',
+       	icon: markerIcon
    	};
 
    	var marker = new google.maps.Marker(markerOptions);
 
    	marker.setMap(map);
    	map.panTo(userLatLng);
+
+   	infowindow.setContent(content);
+   	infowindow.open(map, marker);
+
    	google.maps.event.addListener(marker, 'click', function() {
-   		infowindow.setContent("You are here");
-    	infowindow.open(map,marker);
+   		infowindow.setContent(content);
+    	infowindow.open(map, marker);
   	});
 }
 
@@ -98,15 +109,12 @@ function initialize() {
 
     map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
-    navigator.geolocation.getCurrentPosition(userPosition, geoLocationError);
-    infowindow = new google.maps.InfoWindow();
+    getTrainData();
 
-    getTrainData();   	
+    infowindow = new google.maps.InfoWindow();
 }
 
 
-var xhr;
-var scheduleData;
 
 function getTrainData() {
 	xhr = new XMLHttpRequest();
@@ -118,7 +126,8 @@ function getTrainData() {
 function insertDataIntoInfoWindow() {
 	if (xhr.readyState == 4 && xhr.status == 200) {
 		scheduleData = JSON.parse(xhr.responseText);
-		var line = scheduleData.line;
+		line = scheduleData.line;
+    	navigator.geolocation.getCurrentPosition(userPosition, geoLocationError, {maximumAge:60000, timeout:5000, enableHighAccuracy:true});
 
 		createMarkers(line);
 		drawLines(line);
@@ -241,7 +250,7 @@ function drawLines(line) {
 }
 
 function displaySchedule(station) {
-	var content = station;
+	var content = "<b>" + station + "</b>";
 	content += "<table><tr><th>Line</th><th>Trip #</th><th>Station</th><th>Time</th></tr>"; 
 	for (var i = 0; i < scheduleData.schedule.length; i++) {
 		for (var j = 0; j < scheduleData.schedule[i].Predictions.length; j++) {
@@ -277,38 +286,37 @@ function toRadians(x) {
    return x * Math.PI / 180;
 }
 
-function findClosestStation(line) {
+function findClosestStation() {
 	var stations = Object.keys(mbta[line]);
-	var closestDist = 9999;
+	var closestDist = Number.POSITIVE_INFINITY;
 	var closestStation = "";
 
 	for (var i = 0; i < stations.length; i++) {
-		var curDist = distanceToStation(mbta[line][station][0], mbta[line][station][1]);
+		var curDist = distanceToStation(mbta[line][stations[i]][0], mbta[line][stations[i]][1]);
 		if (curDist < closestDist) {
 			closestDist = curDist;
 			closestStation = stations[i];
 		}
 	}
 
-
+	return "You are here, which is " + closestDist + " from the closest " + line + " line station, " + closestStation + ".";
 }
 
-//messed up because the userPosition function doesn't set userLat and userLong
-//until after distanceToStation is called, so get numbers relative to (0,0)
 function distanceToStation (stationLat, stationLong) {
-	var earthRadius = 3959; // km 
-	var latPos = userLat - stationLat;
+	var earthRadius = 6371; // miles 
+	var latPos = stationLat - userLat;
 	var latDist = toRadians(latPos);  
-	var longPos = userLong - stationLong;
+	var longPos = stationLong - userLong;
 	var longDist = toRadians(longPos);
 
 	var a = Math.sin(latDist / 2) * Math.sin(latDist / 2) + 
-	                Math.cos(toRadians(stationLat)) * Math.cos(toRadians(userLat)) * 
+	                Math.cos(toRadians(userLat)) * Math.cos(toRadians(stationLat)) * 
 	                Math.sin(longDist / 2) * Math.sin(longDist / 2);  
 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
 	var d = earthRadius * c; 
 
-	//alert(d);
+	d *= 0.621371; //convert from km to miles
+	d = (Math.round(d * 100) / 100);
 	return d;
 }
 
