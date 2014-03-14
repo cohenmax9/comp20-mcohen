@@ -21,21 +21,21 @@ red['Harvard Square'] = [42.373362, -71.118956];
 red["Central Square"] = [42.365486, -71.103802];
 red['Kendall/MIT'] = [42.36249079, -71.08617653];
 red["Charles/MGH"] = [42.361166, -71.070628];
+red['Park Street'] = [42.35639457, -71.0624242];
 red['Downtown Crossing'] = [42.355518, -71.060225];
 red['South Station'] = [42.352271, -71.055242];
 red['Broadway'] = [42.342622, -71.056967];
 red['Andrew'] = [42.330154, -71.057655];
 red['JFK/UMass'] = [42.320685, -71.052391];
-red['Ashmont'] = [42.284652, -71.064489];
-red['Braintree'] = [42.2078543, -71.0011385];
-red['Fields Corner'] = [42.300093, -71.061667];
 red['North Quincy'] = [42.275275, -71.029583];
-red['Park Street'] = [42.35639457, -71.0624242];
-red['Quincy Adams'] = [42.233391, -71.007153];
-red['Quincy Center'] = [42.251809, -71.005409];
-red['Savin Hill'] = [42.31129, -71.053331];
-red['Shawmut'] = [42.29312583, -71.06573796];
 red['Wollaston'] = [42.2665139, -71.0203369];
+red['Quincy Center'] = [42.251809, -71.005409];
+red['Quincy Adams'] = [42.233391, -71.007153];
+red['Braintree'] = [42.2078543, -71.0011385];
+red['Savin Hill'] = [42.31129, -71.053331];
+red['Fields Corner'] = [42.300093, -71.061667];
+red['Shawmut'] = [42.29312583, -71.06573796];
+red['Ashmont'] = [42.284652, -71.064489];
 orange['Oak Grove'] = [42.43668, -71.071097];
 orange['Malden Center'] = [42.426632, -71.07411];
 orange['Wellington'] = [42.40237, -71.077082];
@@ -44,9 +44,9 @@ orange['Community College'] = [42.373622, -71.069533];
 orange['North Station'] = [42.365577, -71.06129];
 orange['Haymarket'] = [42.363021, -71.05829];
 orange['State Street'] = [42.358978, -71.057598];
-orange['Tufts Medical'] = [42.349662, -71.063917];
 orange['Downtown Crossing'] = [42.355518, -71.060225];
 orange['Chinatown'] = [42.352547, -71.062752];
+orange['Tufts Medical'] = [42.349662, -71.063917];
 orange['Back Bay'] = [42.34735, -71.075727];
 orange['Mass Ave'] = [42.341512, -71.083423];
 orange['Ruggles'] = [42.336377, -71.088961];
@@ -126,22 +126,18 @@ function insertDataIntoInfoWindow() {
 		var line = scheduleData.line;
 
 		createMarkers(line);
+		drawLines(line);
 
 		for (i = 0; i < scheduleData.schedule.length; i++) {	
 			var dest = scheduleData.schedule[i].Destination;
 			for (j = 0; j < scheduleData.schedule[i].Predictions.length; j++) {
 				var station = scheduleData.schedule[i].Predictions[j].Stop;
-				if (station == dest) {
-					var arrivalTime = scheduleData.schedule[i].Predictions[0].Seconds;
-			
-				   	google.maps.event.addListener(marker, 'click', function() {
-				   		infowindow.setContent(displaySchedule(station, scheduleData.schedule[i].Predictions));
-				    	infowindow.open(map, this);
-				    });
-			   }
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.setContent(displaySchedule(dest, station, scheduleData.schedule[i].Predictions));
+				    infowindow.open(map, this);
+				});	 
 			}
 		}
-	   	drawLines(line);
     }
     else if (xhr.readyState == 4 && xhr.status == 500) {
 		scheduleDom = document.getElementById("map_canvas");
@@ -181,16 +177,8 @@ function createMarkers(line) {
 
 function drawLines(line) {
 	var stations = Object.keys(mbta[line]);
-	var tlines = new Array(stations.length);
-	for (i = 0; i < stations.length; i++) {
-		stat = stations[i];
-		tlines[i] = mbta[line][stat]; 
-	}
-	
-	var linePath = new Array(tlines.length);
-	for (i = 0; i < tlines.length; i++) {
-		linePath[i] = new google.maps.LatLng(tlines[i][0], tlines[i][1]);
-	}
+	var tlines;
+	var curStation;
 
 	if (line == 'red') {
 		lineColor = '#FF0000';
@@ -202,7 +190,53 @@ function drawLines(line) {
 		lineColor = '#FFA500';
 	}
 
-	var linePath = new google.maps.Polyline({
+	if (line == 'red') {
+		tlines = new Array(17);
+		for (i = 0; i < 17; i++) {
+			curStation = stations[i];
+			tlines[i] = mbta[line][curStation]; 
+		}
+
+		var splitRedLine = new Array(stations.length - 17);
+		splitRedLine[0] = mbta[line]['JFK/UMass'];
+		for (i = 1; i < stations.length - 17; i++) {
+			curStation = stations[i + 17];
+			splitRedLine[i] = mbta[line][curStation];
+		}
+		console.log(splitRedLine);
+		var splitRedLinePath = new Array(splitRedLine.length);
+		for (i = 0; i < splitRedLinePath.length; i++) {
+			var lat = splitRedLine[i][0];
+			var lng = splitRedLine[i][1];
+			splitRedLinePath[i] = new google.maps.LatLng(lat, lng);
+		}
+
+		var splitRedLineStationsPath = new google.maps.Polyline({
+			path: splitRedLinePath,
+			geodesic: true,
+			strokeColor: lineColor,
+			strokeOpacity: 1.0,
+			strokeWeight: 2
+		});
+
+		splitRedLineStationsPath.setMap(map);
+	}
+	else {
+		tlines = new Array(stations.length);
+		for (i = 0; i < stations.length; i++) {
+			curStation = stations[i];
+			tlines[i] = mbta[line][curStation]; 
+		}
+	}
+	
+	var linePath = new Array(tlines.length);
+	for (i = 0; i < tlines.length; i++) {
+		var lat = tlines[i][0];
+		var lng = tlines[i][1];
+		linePath[i] = new google.maps.LatLng(lat, lng);
+	}
+
+	var stationPath = new google.maps.Polyline({
 		path: linePath,
 		geodesic: true,
 		strokeColor: lineColor,
@@ -210,7 +244,21 @@ function drawLines(line) {
 		strokeWeight: 2
 	});
 
-	linePath.setMap(map);
+	stationPath.setMap(map);
+}
+
+function displaySchedule(dest, station, predictions) {
+	var tableData;
+	var content = "<h4>" + station + "</h4>";
+	content += "<table><tr><th>Station</th><th>Time</th></tr>"; 
+	for (i = 0; i < predictions.length; i++) {
+		if (dest == station) {
+			tableData += "<tr><td>" + predictions[i].Stop + "</td><td>" + secsToMins(predictions[i].Seconds, 0) + "</td></tr>";
+		}
+	}
+	content += tableData;
+	content += "</table>";
+	return content;
 }
 
 function secsToMins(secs, mins) {
@@ -233,17 +281,6 @@ function toRadians(x) {
    return x * Math.PI / 180;
 }
 
-function displaySchedule(station, predictions) {
-	var tableData;
-	var content = "<h4>" + station + "</h4>";
-	content += "<table><tr><th>Station</th><th>Time</th></tr>"; 
-	for (i = 0; i < predictions.length; i++) {
-		tableData += "<tr><td>" + predictions[i].Stop + "</td><td>" + secsToMins(predictions[i].Seconds, 0) + "</td></tr>";
-	}
-	content += tableData;
-	content += "</table>";
-	return content;
-}
 
 //messed up because the userPosition function doesn't set userLat and userLong
 //until after distanceToStation is called, so get numbers relative to (0,0)
