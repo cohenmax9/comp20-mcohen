@@ -1,59 +1,60 @@
 var blue = new Array(12);
 var red = new Array(22);
 var orange = new Array(19);
-blue['Airport'] = [42.374262, -71.030395];
-blue['Aquarium'] = [42.359784, -71.051652];
-blue['Beachmont'] = [42.39754234, -70.99231944];
-blue['Bowdoin'] = [42.361365, -71.062037];
-blue['Government Center'] = [42.359705, -71.059215];
-blue['Maverick'] = [42.36911856, -71.03952958];
-blue['Orient Heights'] = [42.386867, -71.004736];
-blue['Revere Beach'] = [42.40784254, -70.99253321];
-blue['State Street'] = [42.358978, -71.057598];
-blue['Suffolk Downs'] = [42.39050067, -70.99712259];
+
 blue['Wonderland'] = [42.41342, -70.991648];
+blue['Revere Beach'] = [42.40784254, -70.99253321];
+blue['Beachmont'] = [42.39754234, -70.99231944];
+blue['Suffolk Downs'] = [42.39050067, -70.99712259];
+blue['Orient Heights'] = [42.386867, -71.004736];
 blue['Wood Island'] = [42.3796403, -71.02286539];
+blue['Airport'] = [42.374262, -71.030395];
+blue['Maverick'] = [42.36911856, -71.03952958];
+blue['Aquarium'] = [42.359784, -71.051652];
+blue['State Street'] = [42.358978, -71.057598];
+blue['Government Center'] = [42.359705, -71.059215];
+blue['Bowdoin'] = [42.361365, -71.062037];
 red['Alewife'] = [42.395428, -71.142483];
+red['Davis'] = [42.39674, -71.121815];
+red['Porter Square'] = [42.3884, -71.119149];
+red['Harvard Square'] = [42.373362, -71.118956];
+red["Central Square"] = [42.365486, -71.103802];
+red['Kendall/MIT'] = [42.36249079, -71.08617653];
+red["Charles/MGH"] = [42.361166, -71.070628];
+red['Downtown Crossing'] = [42.355518, -71.060225];
+red['South Station'] = [42.352271, -71.055242];
+red['Broadway'] = [42.342622, -71.056967];
 red['Andrew'] = [42.330154, -71.057655];
+red['JFK/UMass'] = [42.320685, -71.052391];
 red['Ashmont'] = [42.284652, -71.064489];
 red['Braintree'] = [42.2078543, -71.0011385];
-red['Broadway'] = [42.342622, -71.056967];
-red["Central Square"] = [42.365486, -71.103802];
-red["Charles/MGH"] = [42.361166, -71.070628];
-red['Davis'] = [42.39674, -71.121815];
-red['Downtown Crossing'] = [42.355518, -71.060225];
 red['Fields Corner'] = [42.300093, -71.061667];
-red['Harvard Square'] = [42.373362, -71.118956];
-red['JFK/UMass'] = [42.320685, -71.052391];
-red['Kendall/MIT'] = [42.36249079, -71.08617653];
 red['North Quincy'] = [42.275275, -71.029583];
 red['Park Street'] = [42.35639457, -71.0624242];
-red['Porter Square'] = [42.3884, -71.119149];
 red['Quincy Adams'] = [42.233391, -71.007153];
 red['Quincy Center'] = [42.251809, -71.005409];
 red['Savin Hill'] = [42.31129, -71.053331];
 red['Shawmut'] = [42.29312583, -71.06573796];
-red['South Station'] = [42.352271, -71.055242];
 red['Wollaston'] = [42.2665139, -71.0203369];
-orange['Back Bay'] = [42.34735, -71.075727];
-orange['Chinatown'] = [42.352547, -71.062752];
-orange['Community College'] = [42.373622, -71.069533];
-orange['Downtown Crossing'] = [42.355518, -71.060225];
-orange['Forest Hills'] = [42.300523, -71.113686];
-orange['Green Street'] = [42.310525, -71.107414];
-orange['Haymarket'] = [42.363021, -71.05829];
-orange['Jackson Square'] = [42.323132, -71.099592];
-orange['Malden Center'] = [42.426632, -71.07411];
-orange['Mass Ave'] = [42.341512, -71.083423];
-orange['North Station'] = [42.365577, -71.06129];
 orange['Oak Grove'] = [42.43668, -71.071097];
-orange['Roxbury Crossing'] = [42.331397, -71.095451];
-orange['Ruggles'] = [42.336377, -71.088961];
-orange['State Street'] = [42.358978, -71.057598];
-orange['Stony Brook'] = [42.317062,-71.104248];
-orange['Sullivan'] = [42.383975, -71.076994];
-orange['Tufts Medical'] = [42.349662, -71.063917];
+orange['Malden Center'] = [42.426632, -71.07411];
 orange['Wellington'] = [42.40237, -71.077082];
+orange['Sullivan'] = [42.383975, -71.076994];
+orange['Community College'] = [42.373622, -71.069533];
+orange['North Station'] = [42.365577, -71.06129];
+orange['Haymarket'] = [42.363021, -71.05829];
+orange['State Street'] = [42.358978, -71.057598];
+orange['Tufts Medical'] = [42.349662, -71.063917];
+orange['Downtown Crossing'] = [42.355518, -71.060225];
+orange['Chinatown'] = [42.352547, -71.062752];
+orange['Back Bay'] = [42.34735, -71.075727];
+orange['Mass Ave'] = [42.341512, -71.083423];
+orange['Ruggles'] = [42.336377, -71.088961];
+orange['Roxbury Crossing'] = [42.331397, -71.095451];
+orange['Jackson Square'] = [42.323132, -71.099592];
+orange['Stony Brook'] = [42.317062,-71.104248];
+orange['Green Street'] = [42.310525, -71.107414];
+orange['Forest Hills'] = [42.300523, -71.113686];
 
 
 var mbta = {'blue': blue, 'red': red, 'orange': orange};
@@ -110,55 +111,35 @@ function initialize() {
 var xhr;
 
 function getTrainData() {
-	xhr = new XMLHttpRequest();
+		xhr = new XMLHttpRequest();
 	xhr.open("get","http://mbtamap.herokuapp.com/mapper/rodeo.json", true);
-	xhr.onreadystatechange = createMarkers;
+	xhr.onreadystatechange = insertDataIntoInfoWindow;
 	xhr.send(null);
 }
 
-function createMarkers() {
+function insertDataIntoInfoWindow() {
 	if (xhr.readyState == 4 && xhr.status == 200) {
 		scheduleData = JSON.parse(xhr.responseText);
 		console.log(scheduleData);
 		console.log(mbta);
 
 		var line = scheduleData.line;
-		var markerIcon;
 
-		if (line == "red") {
-			markerIcon = new google.maps.MarkerImage("red.png");
-		}
-		else if (line == "blue") {
-			markerIcon = new google.maps.MarkerImage("blue.png");
-		}
-		else {
-			markerIcon = new google.maps.MarkerImage("orange.png");
-		}
+		createMarkers(line);
 
 		for (i = 0; i < scheduleData.schedule.length; i++) {	
 			var dest = scheduleData.schedule[i].Destination;
-			//for (j = 0; j < 1;/*scheduleData.schedule.Predictions[j].length;*/ j++) {
-				var station = scheduleData.schedule[i].Predictions[0].Stop;
-				var lat = mbta[line][station][0];
-				var lng = mbta[line][station][1];
-				var arrivalTime = scheduleData.schedule[i].Predictions[0].Seconds;
-			//}
-			var stopCoords = new google.maps.LatLng(lat, lng);
-		   	var markerOptions = {
-		   		position: stopCoords,
-		   		map: map,
-		       	title: station,
-		       	icon: markerIcon
-		   	};
-
-		   	var marker = new google.maps.Marker(markerOptions);
-
-		   	google.maps.event.addListener(marker, 'click', function() {
-		   		infowindow.setContent(displaySchedule(station, scheduleData.schedule[0].Predictions));
-		    	infowindow.open(map, this);
-		    });
-
-		   	marker.setMap(map);
+			for (j = 0; j < scheduleData.schedule[i].Predictions.length; j++) {
+				var station = scheduleData.schedule[i].Predictions[j].Stop;
+				if (station == dest) {
+					var arrivalTime = scheduleData.schedule[i].Predictions[0].Seconds;
+			
+				   	google.maps.event.addListener(marker, 'click', function() {
+				   		infowindow.setContent(displaySchedule(station, scheduleData.schedule[i].Predictions));
+				    	infowindow.open(map, this);
+				    });
+			   }
+			}
 		}
 	   	drawLines(line);
     }
@@ -168,22 +149,63 @@ function createMarkers() {
 	}	    
 }
 
+function createMarkers(line) {
+	var markerIcon;
+	var stations = Object.keys(mbta[line]);
+
+	if (line == "red") {
+		markerIcon = new google.maps.MarkerImage("red.png");
+	}
+	else if (line == "blue") {
+		markerIcon = new google.maps.MarkerImage("blue.png");
+	}
+	else {
+		markerIcon = new google.maps.MarkerImage("orange.png");
+	}
+
+	for (i = 0; i < mbta[line].length; i++) {
+		var lat = mbta[line][stations[i]][0];
+		var lng = mbta[line][stations[i]][1];
+		var stopCoords = new google.maps.LatLng(lat, lng);
+	   	var markerOptions = {
+	   		position: stopCoords,
+	   		map: map,
+	       	title: stations[i],
+	       	icon: markerIcon
+	   	};
+
+	   	var marker = new google.maps.Marker(markerOptions);
+	   	marker.setMap(map);
+	}
+}
+
 function drawLines(line) {
+	var stations = Object.keys(mbta[line]);
+	var tlines = new Array(stations.length);
+	for (i = 0; i < stations.length; i++) {
+		stat = stations[i];
+		tlines[i] = mbta[line][stat]; 
+	}
+	
+	var linePath = new Array(tlines.length);
+	for (i = 0; i < tlines.length; i++) {
+		linePath[i] = new google.maps.LatLng(tlines[i][0], tlines[i][1]);
+	}
 
-	/*var tlines = [
-		new google.maps.LatLng(mbta[line][station][0], mbta[line][station][1]),
-		new google.maps.LatLng(42.330154, -71.057655),
-		new google.maps.LatLng(42.284652, -71.064489),
-		new google.maps.LatLng(42.2078543, -71.0011385),
-		new google.maps.LatLng(42.2078543, -71.0011385)
-	];*/
-
-	console.log(tlines);
+	if (line == 'red') {
+		lineColor = '#FF0000';
+	}
+	else if (line == 'blue') {
+		lineColor = '#0000FF';
+	}
+	else {
+		lineColor = '#FFA500';
+	}
 
 	var linePath = new google.maps.Polyline({
-		path: tlines,
+		path: linePath,
 		geodesic: true,
-		strokeColor: '#FF0000',
+		strokeColor: lineColor,
 		strokeOpacity: 1.0,
 		strokeWeight: 2
 	});
