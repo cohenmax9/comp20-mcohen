@@ -97,18 +97,15 @@ function initialize() {
 
     map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
-    var infoOptions = {
-    	content: ""
-    };
-
     navigator.geolocation.getCurrentPosition(userPosition, geoLocationError);
-    infowindow = new google.maps.InfoWindow(infoOptions);
+    infowindow = new google.maps.InfoWindow();
 
     getTrainData();   	
 }
 
 
 var xhr;
+var scheduleData;
 
 function getTrainData() {
 		xhr = new XMLHttpRequest();
@@ -127,17 +124,6 @@ function insertDataIntoInfoWindow() {
 
 		createMarkers(line);
 		drawLines(line);
-
-		for (i = 0; i < scheduleData.schedule.length; i++) {	
-			var dest = scheduleData.schedule[i].Destination;
-			for (j = 0; j < scheduleData.schedule[i].Predictions.length; j++) {
-				var station = scheduleData.schedule[i].Predictions[j].Stop;
-				google.maps.event.addListener(marker, 'click', function() {
-					infowindow.setContent(displaySchedule(dest, station, scheduleData.schedule[i].Predictions));
-				    infowindow.open(map, this);
-				});	 
-			}
-		}
     }
     else if (xhr.readyState == 4 && xhr.status == 500) {
 		scheduleDom = document.getElementById("map_canvas");
@@ -172,7 +158,16 @@ function createMarkers(line) {
 
 	   	var marker = new google.maps.Marker(markerOptions);
 	   	marker.setMap(map);
+
+	   	addInfoWindowToMarker(stations[i], marker);
 	}
+}
+
+function addInfoWindowToMarker(station, marker) {
+	google.maps.event.addListener(marker, 'click', function() {
+		infowindow.setContent(displaySchedule(station));
+		infowindow.open(map, this);
+	});
 }
 
 function drawLines(line) {
@@ -192,7 +187,7 @@ function drawLines(line) {
 
 	if (line == 'red') {
 		tlines = new Array(17);
-		for (i = 0; i < 17; i++) {
+		for (i = 0; i <= 17; i++) {
 			curStation = stations[i];
 			tlines[i] = mbta[line][curStation]; 
 		}
@@ -203,7 +198,7 @@ function drawLines(line) {
 			curStation = stations[i + 17];
 			splitRedLine[i] = mbta[line][curStation];
 		}
-		console.log(splitRedLine);
+
 		var splitRedLinePath = new Array(splitRedLine.length);
 		for (i = 0; i < splitRedLinePath.length; i++) {
 			var lat = splitRedLine[i][0];
@@ -247,19 +242,22 @@ function drawLines(line) {
 	stationPath.setMap(map);
 }
 
-function displaySchedule(dest, station, predictions) {
-	var tableData;
-	var content = "<h4>" + station + "</h4>";
-	content += "<table><tr><th>Station</th><th>Time</th></tr>"; 
-	for (i = 0; i < predictions.length; i++) {
-		if (dest == station) {
-			tableData += "<tr><td>" + predictions[i].Stop + "</td><td>" + secsToMins(predictions[i].Seconds, 0) + "</td></tr>";
+function displaySchedule(station) {
+	var content = station;
+	content += "<table><tr><th>Line</th><th>Trip #</th><th>Station</th><th>Time</th></tr>"; 
+	for (var i = 0; i < scheduleData.schedule.length; i++) {
+		for (var j = 0; j < scheduleData.schedule[i].Predictions.length; j++) {
+			if (scheduleData.schedule[i].Predictions[j].Stop == station) { 
+				content += "<tr><td>" + scheduleData.line + "</td><td>" + scheduleData.schedule[i].TripID + 
+					   	   "</td><td>" + scheduleData.schedule[i].Destination + "</td><td>" + secsToMins(scheduleData.schedule[i].Predictions[j].Seconds, 0) + "</td></tr>";
+			}
 		}
 	}
-	content += tableData;
+	
 	content += "</table>";
 	return content;
 }
+
 
 function secsToMins(secs, mins) {
 	if (secs < 59) {
@@ -284,7 +282,7 @@ function toRadians(x) {
 
 //messed up because the userPosition function doesn't set userLat and userLong
 //until after distanceToStation is called, so get numbers relative to (0,0)
-/*function distanceToStation (stationLat, stationLong) {
+function distanceToStation (stationLat, stationLong) {
 	var earthRadius = 3959; // km 
 	var latPos = userLat - stationLat;
 	var latDist = toRadians(latPos);  
@@ -299,7 +297,7 @@ function toRadians(x) {
 
 	//alert(d);
 	return d;
-}*/
+}
 
 
 /*
