@@ -67,6 +67,21 @@ var line;
 var userLat = 0;
 var userLong = 0;
 
+function initialize() {
+    var us = new google.maps.LatLng(42.3581, -71.0636);
+    var myOptions = {
+        zoom: 10,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        center: us
+    };
+
+    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+    getTrainData();
+
+    infowindow = new google.maps.InfoWindow();
+}
+
 function userPosition(position) {
 	userLat = position.coords.latitude;
 	userLong = position.coords.longitude;
@@ -81,7 +96,7 @@ function userPosition(position) {
        	icon: markerIcon
    	};
 
-   	var marker = new google.maps.Marker(markerOptions);
+   	var marker = new google.maps.Marker(markerOptions);	//user position marker
 
    	marker.setMap(map);
    	map.panTo(userLatLng);
@@ -98,23 +113,6 @@ function userPosition(position) {
 function geoLocationError() {
 	alert('Geolocation not supported');
 }
-
-function initialize() {
-    var us = new google.maps.LatLng(42.3581, -71.0636);
-    var myOptions = {
-        zoom: 10,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        center: us
-    };
-
-    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-
-    getTrainData();
-
-    infowindow = new google.maps.InfoWindow();
-}
-
-
 
 function getTrainData() {
 	xhr = new XMLHttpRequest();
@@ -134,7 +132,7 @@ function insertDataIntoInfoWindow() {
     }
     else if (xhr.readyState == 4 && xhr.status == 500) {
 		scheduleDom = document.getElementById("map_canvas");
-		scheduleDom.innerHTML = "<h1>Failure to load trains. Server Error</h1>";
+		scheduleDom.innerHTML = "<h1>Failure to load trains. Server Error.</h1>";
 	}	    
 }
 
@@ -192,8 +190,8 @@ function drawLines(line) {
 		lineColor = '#FFA500';
 	}
 
-	if (line == 'red') {
-		tlines = new Array(17);
+	if (line == 'red') {	//red line is a special case because it splits at JFK/UMass
+		tlines = new Array(17);	//17 red line stops up to and including JFK/UMass
 		for (i = 0; i <= 17; i++) {
 			curStation = stations[i];
 			tlines[i] = mbta[line][curStation]; 
@@ -299,9 +297,10 @@ function findClosestStation() {
 		}
 	}
 
-	return "You are here, which is " + closestDist + " from the closest " + line + " line station, " + closestStation + ".";
+	return "You are here. The closest " + line + " line station is " + closestStation + " which is " + closestDist + " miles away.";
 }
 
+//calculate the straight lines distance to the given station
 function distanceToStation (stationLat, stationLong) {
 	var earthRadius = 6371; // miles 
 	var latPos = stationLat - userLat;
@@ -320,41 +319,4 @@ function distanceToStation (stationLat, stationLong) {
 	return d;
 }
 
-
-/*
-// 	ZOOM TO FIT ALL MARKERS ON GOOGLE MAPS API V3
-
-//  Make an array of the LatLng's of the markers you want to show
-var LatLngList = new Array (new google.maps.LatLng (52.537,-2.061), new google.maps.LatLng (52.564,-2.017));
-//  Create a new viewpoint bound
-var bounds = new google.maps.LatLngBounds ();
-//  Go through each...
-for (var i = 0, LtLgLen = LatLngList.length; i < LtLgLen; i++) {
-  //  And increase the bounds to take this point
-  bounds.extend (LatLngList[i]);
-}
-//  Fit these bounds to the map
-map.fitBounds (bounds);
-*/
-/*
-	if (xhr.readyState == 4 && xhr.status == 200) {
-		scheduleData = JSON.parse(xhr.responseText);
-		scheduleDom = document.getElementById("map_canvas");
-		//var marker = new google.maps.Marker({
-		//			position: new google.maps.LatLng(scheduleData['Lat','Long'],
-		//			title: scheduleData['Stop']
-		//		});
-		strings = JSON.stringify(scheduleData);
-		console.log(scheduleData.schedule[0]);
-	}
-	else if (xhr.readyState == 4 && xhr.status == 500) {
-		scheduleDom = document.getElementById("schedule");
-		scheduleDom.innerHTML = "<p>Failure</p>";
-	}
-	
-}
-
-*/
 google.maps.event.addDomListener(window, 'load', initialize);
-
-
