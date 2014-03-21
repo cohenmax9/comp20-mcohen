@@ -22,8 +22,22 @@ function handleOnChange(event) {
 	parent = newNode.parentNode;
 	parent.insertBefore(newNode, parent.firstChild);
 
+	localStorage[new Date().getTime()] = printedDate + " - " + input.value;
+	reload();
+
 	input.value = "";
 }
+
+//printing in wrong order, try using nodes instead of printedDate + . + input.value
+function reload() {
+	elem = document.getElementById("status");
+	output = "";
+	for (key in localStorage) {
+		output = output + "<p>" + localStorage[key] + "</p>\n";
+	}
+	elem.innerHTML = output;
+}
+	
 </script>
 </head>
 
