@@ -22,8 +22,31 @@ function handleOnChange(event) {
 	parent = newNode.parentNode;
 	parent.insertBefore(newNode, parent.firstChild);
 
+	localStorage[new Date().getTime()] = printedDate + " - " + input.value;
+	reload();
+
 	input.value = "";
 }
+
+function reload() {
+	elem = document.getElementById("status");
+	output = "";
+
+	var i = 0;
+	var reversed = new Array();
+
+	//reverse localStorage array to print in correct order in status div
+	for (key in localStorage) {
+		reversed[i] = localStorage[key];
+		i++;
+	}
+
+	for (i = reversed.length - 1; i >= 0; i--) {
+		output = output + "<p>" + reversed[i] + "</p>\n";
+	}
+	elem.innerHTML = output;
+}
+
 </script>
 </head>
 
