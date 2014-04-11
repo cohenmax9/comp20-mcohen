@@ -249,7 +249,7 @@ function drawLines(line) {
 
 function displaySchedule(station) {
 	var content = "<b>" + station + "</b>";
-	content += "<table><tr><th>Line</th><th>Trip #</th><th>Station</th><th>Time</th></tr>"; 
+	content += "<table><tr><th>Line</th><th>Trip #</th><th>Direction</th><th>Time Remaining</th></tr>"; 
 	for (var i = 0; i < scheduleData.schedule.length; i++) {
 		for (var j = 0; j < scheduleData.schedule[i].Predictions.length; j++) {
 			if (scheduleData.schedule[i].Predictions[j].Stop == station) { 
