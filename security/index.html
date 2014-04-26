@@ -1,14 +1,64 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<title>Security</title>
-	<!--<link rel="stylesheet" href="omfgdogs.css" />  -->
+	<title>2048 ScoreCenter Security Report</title>
+	<link rel="stylesheet" href="index.css" /> 
 </head>
 <body>
-	<h3>Introduction</h3>
-	<h3>Methodology</h3>
-	<h3>Findings</h3>
-	<h3>Issues Found</h3>
-	<h3>Conclusion</h3>
+	<h1>2048 ScoreCenter Security Report</h1>
+
+	<h4>Max Cohen</h4>
+	<h4>April 25, 2014</h4>
+
+	<h2>Introduction</h2>
+	<p> This report looks at the security of a web application that interacts with the popular game 2048. The game 2048 was created by Gabriele Cirulli and can be played by clicking in this <a href="http://gabrielecirulli.github.io/2048/">link</a>. The game is also available as an moblie application on Google Play and the iOS App Store. The code has been made public and is available on <a href="https://github.com/gabrielecirulli/2048">this</a> Github repository. The web application that this report assesses is a score center that keeps track of all of the usernames, scores, and final grids of the 2048 games played. On Gabriele Cirulli's version of the game, only the best score is saved. This score is saved in the browser's local storage. This web application stores the history of the games played, inserting the data into a Mongo database.</p>
+	<h2>Methodology</h2>
+	To find security issues with this web app, I tested the app locally, running the Mongo server and the Nodejs server on my local machine. I used the shell command <code>curl</code> to insert data into the database. Using what I knew about <code>curl</code> from writing my own 2048 ScoreCenter web app, I was able to access the database directly and input and get information easily. 
+	<h2>Findings</h2>
+	The main security issue with the web application was the safety of the database. The main purpose of the app is to accurately keep information about each game of 2048 played. Since information could readily be changed, deleted, or inderted, security issue with the database are significant. Not only could anyone insert inaccurate scores, grids, and usernames, but they could even directly insert code into the database. If someone inserted Javascript code for example (see below), when then rendered in HTML, this code would execute, producing possibly disasterous effects. 
+	<h2>Issues Found</h2>
+	<ol>
+	<li class="title">Data Injection Into Database Fields</li>
+
+	<p> The fields of the database, <code>username</code>, <code>score</code>, and <code>grid</code>, one could insert any username, score, or grid they want to. If someone wanted to have the highest score, they could easily and unfairly become the 2048 master. Using the <code>curl</code> command: <br /><br />
+	<code>max_cohen@ubuntu:~/Desktop/2048-gamecenter$ curl -X POST -H "Content-Type: applation/json" -d '{"username":"Hacker","score":999999999,"grid":"Hacked"}' http://localhost:5000/submit.json</code><br /><br />
+	I was able to inject data into the fields of the scorecenter. Anyone who has ever played the game 2048 knows that a score like 999,999,999 is essentially unattainable.
+	</p>
+
+	<code>//***JQUERY POST HERE</code><br />
+    <code>var username = "AAA";</code><br />
+    <code>var gridString = JSON.stringify(this.grid.serialize());</code><br />
+    <code>var posting = {</code><br />
+    <code>  "username" : username,</code><br />
+    <code>  "score" : this.score,</code><br />
+    <code>  "grid" : gridString</code><br />
+    <code>};</code><br />
+    <code>$.post('http://localhost:5000/submit.json', posting);</code><br />
+
+    <p>Above is the JQuery post sent to the server. Because there is no data validation, anything can be inserted.</p>
+
+	<p>I was even then able to insert data into an field that isn't supposed to exist in the database. This is doable because MongoDB allows documents with different named fields to exist in the same collection. I called this field "extra," and I inserted a document into the MongoDB using the following with this additional field using this <code>curl</code> command: <br /><br />
+	<code>max_cohen@ubuntu:~/Desktop/2048-gamecenter$ curl -X POST -H "Content-Type: applation/json" -d '{"username":"Hacker","score":999999999,"grid":"Hacked","extra":"HA!"}' http://localhost:5000/submit.json</code>. An issue like this a medium security risk. Since the data stored in the extra field would not be rendered in HTML, the data would not be seen to the users. If the data just sits in the database, when getting it to be displayed, it would simply be ignored.
+	</p><br />
+
+	<li class="title">Inject Javascript Code Into MongoDB</li>
+
+	<p>I was even able to inject Javascript code into the database, which when retrieved from the database in the field "username" and rendered in HTML format, executed and produced an alert box: <br /><br />
+	<code>curl -X POST -H "Content-Type: application/json" -d '{"username":"&lt;script&gt;alert();&lt;/script&gt;","score":101010,"grid":"Hacked"}' http://localhost:5000/submit.json</code>
+
+	While making an alert box appear on the Game Center page may seem relatively harmless, one could imagine what someone with too much time on their hands could do with Javascript or some other language to really mess with the web app. The username field, in my example contains normal Javascript; there is nothing extra you have to add to make the code work after you add <code>&lt;script&gt;</code> tags. An issue like this is a high security risk. Unlike the previous risk, the injected code would be executed and could crash the website.
+	</p><br />
+
+	<li class="title">Get All the Data From the MongoDB</li>
+
+	<p>You can use the Mongo <code>[$ne]</code> query to get all the data in the database. I used the following URL to do this: <br /><br />
+	<code>http://localhost:5000/scores.json?username[$ne]</code><br /><br />
+	which gave me back all of the data in the database in JSON form. This can be potentially dangerous if there is sensitive information stored in the database, like credit card information, banking information, or company secrets. What makes this attack even more dangerous is that a person that even has no coding experience could simply type the same line that I did into the URL bar of their browser. An issue like this is a high security risk. Information can be very valuable and if this information is related to money, it is likely valuable.
+	</p><br />
+	</ol>
+
+	<h2>Conclusion</h2>
+	<p>Security issues like these can be detrimental to a website. If these issue arise on a company website, for example, they could put the reputation of the company on the line. If a hacker could access all the data in a website's database, that hacker could steal money, overflow and shutdown a website or server, and make the information in the database untrustworthy. To fix these issues would not be very difficult. Simply, doing data validation from the user, and limiting access to the database would work. 
+
 </body>
 </html>
